@@ -8,9 +8,13 @@ public class AlphaBetaAgent implements Agent {
 	
 	@Override
 	public void init(String role, int width, int height, int playclock) {
-		// TODO Auto-generated method stub
-		
+		this.role = role;
+		this.playclock = playclock;
+		myTurn = !role.equals("white");
+		this.width = width;
+		this.height = height;
 	}
+	
 	@Override
 	public String nextAction(int[] lastmove) {
 		// TODO Auto-generated method stub
