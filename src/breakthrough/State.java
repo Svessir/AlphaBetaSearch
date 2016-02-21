@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import com.sun.org.apache.xpath.internal.WhitespaceStrippingElementMatcher;
+
 /**
  * This type of state is an attempt to save memory and speed up state generation
  * This state accepts a pawn board and actions moves(actions) can be on applied on it. 
@@ -164,6 +166,21 @@ public class State {
 			return legalMoves.isEmpty();					// If there are no legal moves then we have a terminal state
 		}
 		return true;
+	}
+	
+	public int eval() {
+		SPawn mostAdvancedWhitePawn = whiteList[0];
+		SPawn mostAdvancedBlackPawn = blackList[0];
+		for(SPawn p : whiteList) {
+			if(p.y > mostAdvancedWhitePawn.y)
+				mostAdvancedWhitePawn = p;
+		}
+		
+		for(SPawn p: blackList) {
+			if(p.y < mostAdvancedBlackPawn.y)
+				mostAdvancedBlackPawn = p;
+		}
+		return 50 - (((board.length - 2) - mostAdvancedWhitePawn.y) + (mostAdvancedBlackPawn.y - 1));
 	}
 	
 	public Pawn[][] getPawnBoard() {
