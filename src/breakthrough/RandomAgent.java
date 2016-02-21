@@ -1,3 +1,4 @@
+package breakthrough;
 import java.util.Random;
 
 public class RandomAgent implements Agent
