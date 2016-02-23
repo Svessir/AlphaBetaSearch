@@ -155,8 +155,7 @@ public class State {
 				mostAdvancedBlackPawn = p;
 		}
 		
-		int eval = 50 - ((board.length - 2) - mostAdvancedWhitePawn.y) + (mostAdvancedBlackPawn.y - 1);
-		return isWhiteTurn ? eval : eval;
+		return 50 - ((board.length - 2) - mostAdvancedWhitePawn.y) + (mostAdvancedBlackPawn.y - 1);
 	}
 	
 	public Pawn[][] getPawnBoard() {

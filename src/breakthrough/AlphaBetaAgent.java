@@ -69,7 +69,6 @@ public class AlphaBetaAgent implements Agent {
 	}
 	
 	private int[] depthLimitedAlphaBetaSearch(State state, int depth) {
-		//System.out.println(depth);
 		if(depth == 0 || state.isTerminalState())
 			return null;
 		int[] bestMove = null;
