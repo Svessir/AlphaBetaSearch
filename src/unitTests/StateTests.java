@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import breakthrough.Pawn;
 import breakthrough.State;
+import breakthrough.State.SPawn;
 
 public class StateTests {
 	
@@ -34,13 +35,14 @@ public class StateTests {
 			}
 		}
 		
-		assertEquals(6, state.whiteList.length);
-		assertEquals(6, state.blackList.length);
+		assertEquals(6, state.whiteList.size());
+		assertEquals(6, state.blackList.size());
 		
-		for(int i = 0; i < state.blackList.length; i++) {
-			assertEquals(state.blackList[i].id, i);
-			assertEquals(state.whiteList[i].id, i);
-		}
+		for(SPawn p : state.whiteList)
+			assertEquals(true, p.isWhite);
+		
+		for(SPawn p : state.blackList)
+			assertEquals(false, p.isWhite);
 	}
 	
 	@Test

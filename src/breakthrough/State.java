@@ -24,22 +24,20 @@ public class State {
 		public boolean isDead;		// True if the pawn is on the dead stack
 		public int x;				// The pawn x coordinate on the board
 		public int y;				// The pawn y coordinate on the board
-		public int id;				// Id corresponds to the index of the pawn in the pawn list
 		
-		public SPawn(boolean isWhite, boolean isDead, int x, int y, int id) {
+		public SPawn(boolean isWhite, boolean isDead, int x, int y) {
 			this.isWhite = isWhite;
 			this.isDead = isDead;
 			this.x = x;
 			this.y = y;
-			this.id = id;
 		}
 	}
 	
 	public SPawn[][] board;
 	public boolean isWhiteTurn;
 	public boolean isTerminal;
-	public SPawn[] blackList;
-	public SPawn[] whiteList;
+	public ArrayList<SPawn> blackList;
+	public ArrayList<SPawn> whiteList;
 	public Stack<SPawn> blackDeadStack;
 	public Stack<SPawn> whiteDeadStack;
 	public Stack<int[]> moveStack;
@@ -50,57 +48,33 @@ public class State {
 		whiteDeadStack = new Stack<>();
 		blackDeadStack = new Stack<>();
 		moveStack = new Stack<>();
+		whiteList = new ArrayList<>();
+		blackList = new ArrayList<>();
 		convertToSpawnBoard(board);
 	}
 	
 	private void convertToSpawnBoard(Pawn[][] board) {
 		this.board = new SPawn[board.length][board[0].length];
-		int nextWhitePawnId = 0; int nextBlackPawnId = 0;
-		
-		LinkedList<SPawn> tempWhite = new LinkedList<>();		// Temporary List to hold our unknown amount of white pawns
-		LinkedList<SPawn> tempBlack = new LinkedList<>();		// Temporary List to hold our unknown amount of black pawns
 		
 		for(int i = 1; i < board.length - 1; i++) {
 			for(int j = 1; j < board[0].length - 1; j++) {
-				if(board[i][j] != null){						// If there is a pawn on tile
-					SPawn pawn = board[i][j].equals(Pawn.WHITE) ? new SPawn(true, false, j, i, nextWhitePawnId++) 
-								 : new SPawn(false, false, j, i, nextBlackPawnId++);
-					
-					this.board[i][j] = pawn; 					// Add pawn to new board
-					
-					if(pawn.isWhite)
-						tempWhite.add(pawn);
-					else
-						tempBlack.add(pawn);
+				if(board[i][j] != null){
+					SPawn pawn = board[i][j].equals(Pawn.WHITE) ? new SPawn(true, false, j, i) : new SPawn(false, false, j, i);
+					this.board[i][j] = pawn;
+					ArrayList<SPawn> list = pawn.isWhite ? whiteList : blackList;
+					list.add(pawn);
 				}
 			}
-		}
-		
-		whiteList = new SPawn[nextWhitePawnId]; blackList = new SPawn[nextBlackPawnId]; // With known number of pawns we can create the pawn list
-		
-		// Transfer the pawns to the lists
-		while(!tempWhite.isEmpty()) {
-			SPawn white = tempWhite.pop();
-			whiteList[white.id] = white;
-			if(!tempBlack.isEmpty()) {
-				SPawn black = tempBlack.pop();
-				blackList[black.id] = black;
-			}
-		}
-		
-		while(!tempBlack.isEmpty()) {	// If number of black pawns is greater then number of white pawns finish transfer
-			SPawn black = tempBlack.pop();
-			blackList[black.id] = black;
 		}
 	}
 	
 	public Collection<int[]> legalMoves() {
 		if(legalMoves == null){
 			legalMoves = new ArrayList<int[]>();
-			SPawn[] pawnList = isWhiteTurn ? whiteList : blackList;		// Get the pawns that belong to the player
+			ArrayList<SPawn> pawnList = isWhiteTurn ? whiteList : blackList; 	// Get the pawns that belong to the player
 			for(SPawn pawn : pawnList) {
 				if(!pawn.isDead)
-					addPawnMovesToList(pawn, legalMoves);					// If the pawn is not dead then we can include actions for it
+					addPawnMovesToList(pawn, legalMoves);						// If the pawn is not dead then we can include actions for it
 			}
 		}
 		return legalMoves;
@@ -108,14 +82,14 @@ public class State {
 	
 	private void addPawnMovesToList(SPawn pawn, List<int[]> moves) {
 		int upDown = pawn.isWhite ? 1 : -1;				// If white pawn moves it moves upwards, else if black pawn it moves downwards
-		if((isWhiteTurn && pawn.y + 1 > board.length - 2) || !isWhiteTurn && pawn.y - 1 < 1)
+		if((pawn.isWhite && pawn.y + 1 > board.length - 2) || !pawn.isWhite && pawn.y - 1 < 1)
 			return;																	// If move will move pawn out of board then there is no legal move
-		if(board[pawn.y + upDown][pawn.x] == null)
-			moves.add(new int[] {pawn.x, pawn.y, pawn.x, pawn.y + upDown});			// Moving the pawn to the front tile if there is no pawn there
 		if(board[pawn.y + upDown][pawn.x - 1] != null && board[pawn.y + upDown][pawn.x - 1].isWhite != pawn.isWhite)
 			moves.add(new int[] {pawn.x, pawn.y, pawn.x - 1, pawn.y + upDown});		// Moving the pawn diagonally left if there is an enemy pawn there
 		if(board[pawn.y + upDown][pawn.x + 1] != null && board[pawn.y + upDown][pawn.x + 1].isWhite != pawn.isWhite)
 			moves.add(new int[] {pawn.x, pawn.y, pawn.x + 1, pawn.y + upDown});		// Moving the pawn diagonally right if there is an enemy pawn there
+		if(board[pawn.y + upDown][pawn.x] == null)
+			moves.add(new int[] {pawn.x, pawn.y, pawn.x, pawn.y + upDown});			// Moving the pawn to the front tile if there is no pawn there
 	}
 	
 	public State successorState(int[] move) {
@@ -169,8 +143,8 @@ public class State {
 	}
 	
 	public int eval() {
-		SPawn mostAdvancedWhitePawn = whiteList[0];
-		SPawn mostAdvancedBlackPawn = blackList[0];
+		SPawn mostAdvancedWhitePawn = whiteList.get(0);
+		SPawn mostAdvancedBlackPawn = blackList.get(0);
 		for(SPawn p : whiteList) {
 			if(p.y > mostAdvancedWhitePawn.y)
 				mostAdvancedWhitePawn = p;
@@ -180,7 +154,9 @@ public class State {
 			if(p.y < mostAdvancedBlackPawn.y)
 				mostAdvancedBlackPawn = p;
 		}
-		return 50 - (((board.length - 2) - mostAdvancedWhitePawn.y) + (mostAdvancedBlackPawn.y - 1));
+		
+		int eval = 50 - ((board.length - 2) - mostAdvancedWhitePawn.y) + (mostAdvancedBlackPawn.y - 1);
+		return isWhiteTurn ? eval : eval;
 	}
 	
 	public Pawn[][] getPawnBoard() {
