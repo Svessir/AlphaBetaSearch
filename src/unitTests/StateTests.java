@@ -11,7 +11,7 @@ import breakthrough.State;
 import breakthrough.State.SPawn;
 
 public class StateTests {
-	
+	/*
 	@Test
 	public void convertToSPawnBoardTest(){
 		Pawn[][] pawnBoard = new Pawn[][]
@@ -140,5 +140,5 @@ public class StateTests {
 		assertEquals(true, state.isWhiteTurn);
 		
 	}
-
+*/
 }

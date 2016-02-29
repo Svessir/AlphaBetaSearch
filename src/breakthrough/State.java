@@ -1,6 +1,7 @@
 package breakthrough;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class State {
 	public Stack<SPawn> blackDeadStack;
 	public Stack<SPawn> whiteDeadStack;
 	public Stack<int[]> moveStack;
-	List<int[]> legalMoves;
+	ArrayList<int[]> legalMoves;
 	
 	public State(Pawn[][] board, boolean isWhiteTurn) {
 		this.isWhiteTurn = isWhiteTurn;
@@ -68,28 +69,43 @@ public class State {
 		}
 	}
 	
-	public Collection<int[]> legalMoves() {
+	public ArrayList<int[]> legalMoves(int[] killerMove) {
 		if(legalMoves == null){
 			legalMoves = new ArrayList<int[]>();
 			ArrayList<SPawn> pawnList = isWhiteTurn ? whiteList : blackList; 	// Get the pawns that belong to the player
 			for(SPawn pawn : pawnList) {
 				if(!pawn.isDead)
-					addPawnMovesToList(pawn, legalMoves);						// If the pawn is not dead then we can include actions for it
+					addPawnMovesToList(pawn, legalMoves, killerMove);			// If the pawn is not dead then we can include actions for it
 			}
 		}
 		return legalMoves;
 	}
 	
-	private void addPawnMovesToList(SPawn pawn, List<int[]> moves) {
+	private void addPawnMovesToList(SPawn pawn, ArrayList<int[]> moves, int[] killerMove) {
+		int[] move;
 		int upDown = pawn.isWhite ? 1 : -1;				// If white pawn moves it moves upwards, else if black pawn it moves downwards
 		if((pawn.isWhite && pawn.y + 1 > board.length - 2) || !pawn.isWhite && pawn.y - 1 < 1)
-			return;																	// If move will move pawn out of board then there is no legal move
-		if(board[pawn.y + upDown][pawn.x - 1] != null && board[pawn.y + upDown][pawn.x - 1].isWhite != pawn.isWhite)
-			moves.add(new int[] {pawn.x, pawn.y, pawn.x - 1, pawn.y + upDown});		// Moving the pawn diagonally left if there is an enemy pawn there
-		if(board[pawn.y + upDown][pawn.x + 1] != null && board[pawn.y + upDown][pawn.x + 1].isWhite != pawn.isWhite)
-			moves.add(new int[] {pawn.x, pawn.y, pawn.x + 1, pawn.y + upDown});		// Moving the pawn diagonally right if there is an enemy pawn there
-		if(board[pawn.y + upDown][pawn.x] == null)
-			moves.add(new int[] {pawn.x, pawn.y, pawn.x, pawn.y + upDown});			// Moving the pawn to the front tile if there is no pawn there
+			return;																// If move will move pawn out of board then there is no legal move
+		if(board[pawn.y + upDown][pawn.x - 1] != null && board[pawn.y + upDown][pawn.x - 1].isWhite != pawn.isWhite) {
+			move = new int[] {pawn.x, pawn.y, pawn.x - 1, pawn.y + upDown};		// Moving the pawn diagonally left if there is an enemy pawn there
+			addMoveTolist(moves, move, killerMove);
+		}
+		if(board[pawn.y + upDown][pawn.x + 1] != null && board[pawn.y + upDown][pawn.x + 1].isWhite != pawn.isWhite) {
+			move = new int[] {pawn.x, pawn.y, pawn.x + 1, pawn.y + upDown};		// Moving the pawn diagonally right if there is an enemy pawn there
+			addMoveTolist(moves, move, killerMove);
+		}
+		if(board[pawn.y + upDown][pawn.x] == null) {
+			move = new int[] {pawn.x, pawn.y, pawn.x, pawn.y + upDown};			// Moving the pawn to the front tile if there is no pawn there
+			addMoveTolist(moves, move, killerMove);
+		}
+	}
+	
+	private void addMoveTolist(ArrayList<int[]> moves, int[] move, int[] killerMove) {
+		if(killerMove != null && Arrays.equals(move, killerMove))
+			moves.add(0, move);
+		else
+			moves.add(move);
+			
 	}
 	
 	public State successorState(int[] move) {
@@ -136,7 +152,7 @@ public class State {
 	public boolean isTerminalState() {
 		if(!isTerminal) {									// If there are no pawns in a terminal position
 			if(legalMoves == null)
-				legalMoves();								// Get the legalMoves
+				legalMoves(null);							// Get the legalMoves
 			return legalMoves.isEmpty();					// If there are no legal moves then we have a terminal state
 		}
 		return true;
@@ -185,7 +201,7 @@ public class State {
 		State state = new State(pawnBoard, true);
 		int count = 0;
 		while(!state.isTerminalState()) {
-			ArrayList<int[]> moves = (ArrayList<int[]>) state.legalMoves();
+			ArrayList<int[]> moves = (ArrayList<int[]>) state.legalMoves(null);
 			state.successorState(moves.get(0));
 			count++;
 		}

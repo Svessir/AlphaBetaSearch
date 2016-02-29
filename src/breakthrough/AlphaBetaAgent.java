@@ -12,6 +12,7 @@ public class AlphaBetaAgent implements Agent {
 	private int width, height; 	// dimensions of the board
 	private Pawn[][] board;		// The game board
 	private long startTime;		// The start time of the search
+	boolean isCutOff;
 	
 	@Override
 	public void init(String role, int width, int height, int playclock) {
@@ -58,23 +59,28 @@ public class AlphaBetaAgent implements Agent {
 		int[] move = null;
 		while(true){
 			try {
-				//System.out.println(depth);
-				move = depthLimitedAlphaBetaSearch(state, depth);
+				isCutOff = false;
+				move = depthLimitedAlphaBetaSearch(state, depth, move);
+				if(!isCutOff)
+					break;
 				depth++;
 			} catch(OutOfTimeException e) {
 				break;
 			}
 		}
+		System.out.println(depth);
 		return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
 	}
 	
-	private int[] depthLimitedAlphaBetaSearch(State state, int depth) {
-		if(depth == 0 || state.isTerminalState())
+	private int[] depthLimitedAlphaBetaSearch(State state, int depth, int[] killerMove) {
+		if(depth == 0) {
+			isCutOff = true;
 			return null;
+		}
 		int[] bestMove = null;
 		int bestValue = Integer.MIN_VALUE;
 		int alpha = Integer.MIN_VALUE;
-		for(int[] move : state.legalMoves()) {
+		for(int[] move : state.legalMoves(killerMove)) {
 			int value = MIN(state.successorState(move), alpha, Integer.MAX_VALUE, depth - 1);
 			alpha = Math.max(alpha, value);
 			if(value > bestValue) {
@@ -89,10 +95,14 @@ public class AlphaBetaAgent implements Agent {
 	private int MAX(State state, int alpha, int beta, int depth) {
 		if(System.currentTimeMillis() - startTime >= playclock)
 			throw new OutOfTimeException();
-		else if(depth == 0 || state.isTerminalState())
+		else if(depth == 0) {
+			isCutOff = true;
+			return -state.eval();
+		}
+		else if(state.isTerminalState())
 			return -state.eval();
 		int value = Integer.MIN_VALUE;
-		for(int[] move : state.legalMoves()) {
+		for(int[] move : state.legalMoves(null)) {
 			value = Math.max(value, MIN(state.successorState(move), alpha, beta, depth - 1));
 			state.rewindState();
 			if(value >= beta)
@@ -105,10 +115,14 @@ public class AlphaBetaAgent implements Agent {
 	private int MIN(State state, int alpha, int beta, int depth) {
 		if(System.currentTimeMillis() - startTime >= playclock)
 			throw new OutOfTimeException();
-		else if(depth == 0 || state.isTerminalState())
+		else if(depth == 0) {
+			isCutOff = true;
+			return state.eval();
+		}
+		else if(state.isTerminalState())
 			return state.eval();
 		int value = Integer.MAX_VALUE;
-		for(int[] move : state.legalMoves()) {
+		for(int[] move : state.legalMoves(null)) {
 			value = Math.min(value, MAX(state.successorState(move), alpha, beta, depth - 1));
 			state.rewindState();
 			if(value <= alpha)
