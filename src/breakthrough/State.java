@@ -1,23 +1,8 @@
 package breakthrough;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Stack;
 
-import com.sun.org.apache.xpath.internal.WhitespaceStrippingElementMatcher;
-
-/**
- * This type of state is an attempt to save memory and speed up state generation
- * This state accepts a pawn board and actions moves(actions) can be on applied on it. 
- * The state can then be rewound to get the previous state. The board and pawns used
- * are only generated once.
- * Generating the successor state takes constant time as well as rewinding it.
- * @author Sverrir
- *
- */
 public class State {
 	
 	public class SPawn {
@@ -44,8 +29,6 @@ public class State {
 	public Stack<int[]> moveStack;
 	public int[][] whiteGrid;
 	public int[][] blackGrid;
-	public int numberOfWhitesLeft;
-	public int numberOfBlacksLeft;
 	ArrayList<int[]> legalMoves;
 	public boolean isWinningMove = false;
 
@@ -57,8 +40,6 @@ public class State {
 		whiteList = new ArrayList<>();
 		blackList = new ArrayList<>();
 		convertToSpawnBoard(board);
-		numberOfWhitesLeft = whiteList.size();
-		numberOfBlacksLeft = blackList.size();
 		whiteGrid = makeGridWhite(board.length, board[0].length);
 		blackGrid = makeGridBlack(board.length, board[0].length);
 	}
@@ -91,27 +72,18 @@ public class State {
 	}
 	
 	private void addPawnMovesToList(SPawn pawn, ArrayList<int[]> moves) {
-		int[] move;
 		int upDown = pawn.isWhite ? 1 : -1;				// If white pawn moves it moves upwards, else if black pawn it moves downwards
 		if((pawn.isWhite && pawn.y + 1 > board.length - 2) || !pawn.isWhite && pawn.y - 1 < 1)
 			return;																// If move will move pawn out of board then there is no legal move
 		if(board[pawn.y + upDown][pawn.x - 1] != null && board[pawn.y + upDown][pawn.x - 1].isWhite != pawn.isWhite) {
-			move = new int[] {pawn.x, pawn.y, pawn.x - 1, pawn.y + upDown};		// Moving the pawn diagonally left if there is an enemy pawn there
-			addMoveTolist(moves, move);
+			moves.add(new int[] {pawn.x, pawn.y, pawn.x - 1, pawn.y + upDown});		// Moving the pawn diagonally left if there is an enemy pawn there
 		}
 		if(board[pawn.y + upDown][pawn.x + 1] != null && board[pawn.y + upDown][pawn.x + 1].isWhite != pawn.isWhite) {
-			move = new int[] {pawn.x, pawn.y, pawn.x + 1, pawn.y + upDown};		// Moving the pawn diagonally right if there is an enemy pawn there
-			addMoveTolist(moves, move);
+			moves.add(new int[] {pawn.x, pawn.y, pawn.x + 1, pawn.y + upDown});		// Moving the pawn diagonally right if there is an enemy pawn there
 		}
 		if(board[pawn.y + upDown][pawn.x] == null) {
-			move = new int[] {pawn.x, pawn.y, pawn.x, pawn.y + upDown};			// Moving the pawn to the front tile if there is no pawn there
-			addMoveTolist(moves, move);
+			moves.add(new int[] {pawn.x, pawn.y, pawn.x, pawn.y + upDown});			// Moving the pawn to the front tile if there is no pawn there
 		}
-	}
-	
-	private void addMoveTolist(ArrayList<int[]> moves, int[] move) {
-			moves.add(move);
-			
 	}
 	
 	public State successorState(int[] move) {
@@ -122,8 +94,6 @@ public class State {
 		
 		if(killedPawn != null) {
 			killedPawn.isDead = true;						// Mark the killed pawn as dead
-			if(killedPawn.isWhite) numberOfWhitesLeft--;
-			else numberOfBlacksLeft--;
 		}
 		if(move[3] == 1 || move[3] == board.length - 2) {
 			isTerminal = true;// If a pawn is being moved to the bottom row or the top row, then we have a terminal state
@@ -148,8 +118,6 @@ public class State {
 		
 		if(killedPawn != null) {
 			killedPawn.isDead = false;						// Mark the killed pawn as alive
-			if(killedPawn.isWhite) numberOfWhitesLeft++;
-			else numberOfBlacksLeft++;
 		}
 		if(isTerminal)
 			isTerminal = false;								// If the state was a terminal then the previous state should not be terminal
@@ -218,6 +186,20 @@ public class State {
 		}
 		return pBoard;
 	}
+	
+	public int eval2() {
+		SPawn mostAdvancedBlack = blackList.get(0), mostAdvancedWhite = whiteList.get(0);
+		for(SPawn pawn : blackList) {
+			if(pawn.y < mostAdvancedBlack.y)
+				mostAdvancedBlack = pawn;
+		}
+		for(SPawn pawn : whiteList) {
+			if(pawn.y > mostAdvancedWhite.y)
+				mostAdvancedWhite = pawn;
+		}
+		return 50 - ((mostAdvancedBlack.y - 1) + ((board.length - 2) - mostAdvancedWhite.y));
+	}
+	
 	public static int[][] makeGridWhite(int x, int y) {
 		int boardWidth = x;
 		int boardLength = y;
@@ -287,56 +269,5 @@ public class State {
 			}
 		}
 		return pointBoard;
-	}
-	
-	public static void main(String[] args) {
-		Pawn[][] pawnBoard = new Pawn[][]
-		{
-			{null, null, null, null, null},
-			{null, Pawn.WHITE, Pawn.WHITE, Pawn.WHITE, null},
-			{null, Pawn.WHITE, Pawn.WHITE, Pawn.WHITE, null},
-			{null, Pawn.BLACK, Pawn.BLACK, Pawn.BLACK, null},
-			{null, Pawn.BLACK, Pawn.BLACK, Pawn.BLACK, null},
-			{null, null, null, null, null}
-		};
-		
-		State state = new State(pawnBoard, true);
-		int count = 0;
-		while(!state.isTerminalState()) {
-			ArrayList<int[]> moves = (ArrayList<int[]>) state.legalMoves();
-			state.successorState(moves.get(0));
-			count++;
-		}
-		
-		for(Pawn[] pl : state.getPawnBoard()) {
-			for(Pawn p : pl) {
-				if(p != null) {
-					if(p.equals(Pawn.WHITE))
-						System.out.print(" WHITE ");
-					else
-						System.out.print(" BLACK ");
-				}
-				else
-					System.out.print(" NULL ");
-			}
-			System.out.println();
-		}
-		System.out.println();
-		for(int i = count; i > 0; i--)
-			state.rewindState();
-		System.out.println();
-		for(Pawn[] pl : state.getPawnBoard()) {
-			for(Pawn p : pl) {
-				if(p != null) {
-					if(p.equals(Pawn.WHITE))
-						System.out.print(" WHITE ");
-					else
-						System.out.print(" BLACK ");
-				}
-				else
-					System.out.print(" NULL ");
-			}
-			System.out.println();
-		}
 	}
 }

@@ -1,7 +1,5 @@
 package breakthrough;
 
-import breakthrough.State.SPawn;
-
 public class AlphaBetaAgent implements Agent {
 	
 	private class OutOfTimeException extends RuntimeException {};
@@ -12,8 +10,8 @@ public class AlphaBetaAgent implements Agent {
 	private int width, height; 	// dimensions of the board
 	private Pawn[][] board;		// The game board
 	private long startTime;		// The start time of the search
-	boolean isCutOff;
-	int depth = 0;
+	private boolean isCutOff;
+	private int numberOfExpansion;
 
 	@Override
 	public void init(String role, int width, int height, int playclock) {
@@ -56,20 +54,22 @@ public class AlphaBetaAgent implements Agent {
 	
 	private String searchForBestNextAction() {
 		State state = new State(board, role.equals("white"));
-		depth = 0;
+		int depth = 0;
 		int[] move = null;
 		while(true){
 			try {
 				isCutOff = false;
+				numberOfExpansion = 0;
 				move = depthLimitedAlphaBetaSearch(state, depth);
 				if(!isCutOff)
 					break;
 				depth++;
+				//System.out.println(numberOfExpansion);
 			} catch(OutOfTimeException e) {
 				break;
 			}
 		}
-		System.out.println(depth);
+		//System.out.println(depth);
 		return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
 	}
 	
@@ -83,6 +83,7 @@ public class AlphaBetaAgent implements Agent {
 		int alpha = Integer.MIN_VALUE;
 		int beta =  Integer.MAX_VALUE;
 		for(int[] move : state.legalMoves()) {
+			numberOfExpansion++;
 			int value = MIN(state.successorState(move), alpha, beta, depth - 1);
 			alpha = Math.max(alpha, value);
 			if(value > bestValue) {
@@ -105,6 +106,7 @@ public class AlphaBetaAgent implements Agent {
 			return -state.eval();
 		int value = Integer.MIN_VALUE;
 		for(int[] move : state.legalMoves()) {
+			numberOfExpansion++;
 			value = Math.max(value, MIN(state.successorState(move), alpha, beta, depth - 1));
 			state.rewindState();
 			if(value >= beta)
@@ -125,6 +127,7 @@ public class AlphaBetaAgent implements Agent {
 			return state.eval();
 		int value = Integer.MAX_VALUE;
 		for(int[] move : state.legalMoves()) {
+			numberOfExpansion++;
 			value = Math.min(value, MAX(state.successorState(move), alpha, beta, depth - 1));
 			state.rewindState();
 			if(value <= alpha)
