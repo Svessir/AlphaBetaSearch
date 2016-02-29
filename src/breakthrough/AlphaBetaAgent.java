@@ -13,7 +13,8 @@ public class AlphaBetaAgent implements Agent {
 	private Pawn[][] board;		// The game board
 	private long startTime;		// The start time of the search
 	boolean isCutOff;
-	
+	int depth = 0;
+
 	@Override
 	public void init(String role, int width, int height, int playclock) {
 		this.role = role;
@@ -55,12 +56,12 @@ public class AlphaBetaAgent implements Agent {
 	
 	private String searchForBestNextAction() {
 		State state = new State(board, role.equals("white"));
-		int depth = 0;
+		depth = 0;
 		int[] move = null;
 		while(true){
 			try {
 				isCutOff = false;
-				move = depthLimitedAlphaBetaSearch(state, depth, move);
+				move = depthLimitedAlphaBetaSearch(state, depth);
 				if(!isCutOff)
 					break;
 				depth++;
@@ -72,7 +73,7 @@ public class AlphaBetaAgent implements Agent {
 		return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
 	}
 	
-	private int[] depthLimitedAlphaBetaSearch(State state, int depth, int[] killerMove) {
+	private int[] depthLimitedAlphaBetaSearch(State state, int depth) {
 		if(depth == 0) {
 			isCutOff = true;
 			return null;
@@ -80,8 +81,9 @@ public class AlphaBetaAgent implements Agent {
 		int[] bestMove = null;
 		int bestValue = Integer.MIN_VALUE;
 		int alpha = Integer.MIN_VALUE;
-		for(int[] move : state.legalMoves(killerMove)) {
-			int value = MIN(state.successorState(move), alpha, Integer.MAX_VALUE, depth - 1);
+		int beta =  Integer.MAX_VALUE;
+		for(int[] move : state.legalMoves()) {
+			int value = MIN(state.successorState(move), alpha, beta, depth - 1);
 			alpha = Math.max(alpha, value);
 			if(value > bestValue) {
 				bestMove = move;
@@ -102,7 +104,7 @@ public class AlphaBetaAgent implements Agent {
 		else if(state.isTerminalState())
 			return -state.eval();
 		int value = Integer.MIN_VALUE;
-		for(int[] move : state.legalMoves(null)) {
+		for(int[] move : state.legalMoves()) {
 			value = Math.max(value, MIN(state.successorState(move), alpha, beta, depth - 1));
 			state.rewindState();
 			if(value >= beta)
@@ -122,7 +124,7 @@ public class AlphaBetaAgent implements Agent {
 		else if(state.isTerminalState())
 			return state.eval();
 		int value = Integer.MAX_VALUE;
-		for(int[] move : state.legalMoves(null)) {
+		for(int[] move : state.legalMoves()) {
 			value = Math.min(value, MAX(state.successorState(move), alpha, beta, depth - 1));
 			state.rewindState();
 			if(value <= alpha)
@@ -132,4 +134,3 @@ public class AlphaBetaAgent implements Agent {
 		return value;
 	}
 }
-	
