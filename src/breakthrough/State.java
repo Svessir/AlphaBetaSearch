@@ -42,6 +42,8 @@ public class State {
 	public Stack<SPawn> blackDeadStack;
 	public Stack<SPawn> whiteDeadStack;
 	public Stack<int[]> moveStack;
+	public int[][] whiteGrid;
+	public int[][] blackGrid;
 	ArrayList<int[]> legalMoves;
 	
 	public State(Pawn[][] board, boolean isWhiteTurn) {
@@ -52,6 +54,8 @@ public class State {
 		whiteList = new ArrayList<>();
 		blackList = new ArrayList<>();
 		convertToSpawnBoard(board);
+		whiteGrid = makeGridWhite(board.length, board[0].length);
+		blackGrid = makeGridBlack(board.length, board[0].length);
 	}
 	
 	private void convertToSpawnBoard(Pawn[][] board) {
@@ -159,19 +163,42 @@ public class State {
 	}
 	
 	public int eval() {
-		SPawn mostAdvancedWhitePawn = whiteList.get(0);
+		int white = 0;
+		int black = 0;
+		for(SPawn p : whiteList){
+			if(!p.isDead){
+				white += whiteGrid[p.x][p.y];
+			}
+		}
+		for(SPawn p : blackList){
+			if(!p.isDead){
+				black += blackGrid[p.x][p.y];
+			}
+		}
+		int wbSize = whiteList.size() - blackList.size();
+		if(wbSize < 0) {
+			wbSize *= -10;
+			black += wbSize;
+		}
+		else{
+			wbSize *= 10;
+			wbSize += white;
+		}
+		
+		return 50 - white + black;
+		/*SPawn mostAdvancedWhitePawn = whiteList.get(0);
 		SPawn mostAdvancedBlackPawn = blackList.get(0);
 		for(SPawn p : whiteList) {
-			if(p.y > mostAdvancedWhitePawn.y)
+			if(!p.isDead && p.y > mostAdvancedWhitePawn.y)
 				mostAdvancedWhitePawn = p;
 		}
 		
 		for(SPawn p: blackList) {
-			if(p.y < mostAdvancedBlackPawn.y)
+			if(!p.isDead && p.y < mostAdvancedBlackPawn.y)
 				mostAdvancedBlackPawn = p;
 		}
 		
-		return 50 - ((board.length - 2) - mostAdvancedWhitePawn.y) + (mostAdvancedBlackPawn.y - 1);
+		return 50 - ((board.length - 2) - mostAdvancedWhitePawn.y) + (mostAdvancedBlackPawn.y - 1);*/
 	}
 	
 	public Pawn[][] getPawnBoard() {
@@ -185,6 +212,76 @@ public class State {
 			}
 		}
 		return pBoard;
+	}
+	public static int[][] makeGridWhite(int x, int y) {
+		int boardWidth = x;
+		int boardLength = y;
+		int count = 0;
+		int pointBoard[][] = new int[boardLength][boardWidth];
+		for(int i = 0; i < boardLength; i++){
+			for(int j = 0; j < boardWidth; j++) {
+				if (i == 0) {
+					if (j == 0 || j == (boardWidth-1)){
+						pointBoard[i][j] = 5;
+						continue;
+					}
+					pointBoard[i][j] = 15;
+					continue;
+				}
+				if (i == 1) {
+					if(j == 0 || j == (boardWidth-1)){
+						pointBoard[i][j] = 2;
+						continue;
+					}
+					pointBoard[i][j] = 3;
+					continue;
+				}
+				if (j == 0 || j == (boardWidth-1)){
+					pointBoard[i][j] = pointBoard[i-1][j] + 2 + count;
+					continue;
+				}
+				pointBoard[i][j] = pointBoard[i-1][j] + 3 + count;
+			}
+			if(i > 1) {
+				count++;
+			}
+		}
+		return pointBoard;
+	}
+	public static int[][] makeGridBlack(int x, int y) {
+		int boardWidth = x;
+		int boardLength = y;
+		int count = 0;
+		int pointBoard[][] = new int[boardLength][boardWidth];
+		for(int i = boardLength - 1 ; i >= 0; i--){
+			for(int j = boardWidth - 1 ; j >= 0; j--) {
+				if (i == boardLength - 1) {
+					if (j == 0 || j == (boardWidth-1)){
+						pointBoard[i][j] = 5;
+						continue;
+					}
+					pointBoard[i][j] = 15;
+					continue;
+				}
+				if (i == boardLength - 2) {
+					if(j == 0 || j == (boardWidth-1)){
+						pointBoard[i][j] = 2;
+						continue;
+					}
+					pointBoard[i][j] = 3;
+					continue;
+				}
+				if (j == 0 || j == (boardWidth-1)){
+					pointBoard[i][j] = pointBoard[i+1][j] + 2 + count;
+					continue;
+				}
+				pointBoard[i][j] = pointBoard[i+1][j] + 3 + count;
+			}
+			if(i < boardLength - 2) {
+				count++;
+			}
+		}
+		return pointBoard;
 	}
 	
 	public static void main(String[] args) {

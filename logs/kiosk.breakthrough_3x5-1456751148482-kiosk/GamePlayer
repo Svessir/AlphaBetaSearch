@@ -1,0 +1,38 @@
+LOG 1456751148525 [L0]: [Received at 1456751148525] ( START kiosk.breakthrough_3x5-1456751148482 black (( role white ) ( role black ) ( succ 1 2 ) ( succ 2 3 ) ( succ 3 4 ) ( succ 4 5 ) ( succ 5 6 ) ( succ 6 7 ) ( succ 7 8 ) ( succ 8 9 ) ( succ 9 10 ) ( <= ( smallereq 1 ?y ) ( succ ?y ?z ) ) ( <= ( smallereq ?x ?y ) ( succ ?x1 ?x ) ( succ ?y1 ?y ) ( smallereq ?x1 ?y1 ) ) ( <= ( xcoord ?x ) ( width ?w ) ( smallereq ?x ?w ) ) ( <= ( ycoord ?y ) ( height ?h ) ( smallereq ?y ?h ) ) ( <= ( forward white ?y1 ?y2 ) ( succ ?y1 ?y2 ) ( ycoord ?y2 ) ) ( <= ( forward black ?y1 ?y2 ) ( succ ?y2 ?y1 ) ( ycoord ?y1 ) ) ( <= ( neighbor ?x1 ?x2 ) ( succ ?x1 ?x2 ) ( xcoord ?x2 ) ) ( <= ( neighbor ?x1 ?x2 ) ( succ ?x2 ?x1 ) ( xcoord ?x1 ) ) ( <= ( cell ?x ?y ) ( xcoord ?x ) ( ycoord ?y ) ) ( <= ( distinctCell ?x1 ?y1 ?x2 ?y2 ) ( cell ?x1 ?y1 ) ( cell ?x2 ?y2 ) ( distinct ?x1 ?x2 ) ) ( <= ( distinctCell ?x1 ?y1 ?x2 ?y2 ) ( cell ?x1 ?y1 ) ( cell ?x2 ?y2 ) ( distinct ?y1 ?y2 ) ) ( opponent white black ) ( opponent black white ) ( <= ( base ( cell ?x ?y ?p ) ) ( cell ?x ?y ) ( role ?p ) ) ( <= ( base ( control ?p ) ) ( role ?p ) ) ( <= ( input ?p noop ) ( role ?p ) ) ( <= ( input ?p ( move ?x ?y1 ?x ?y2 ) ) ( xcoord ?x ) ( forward ?p ?y1 ?y2 ) ) ( <= ( input ?p ( move ?x1 ?y1 ?x2 ?y2 ) ) ( neighbor ?x1 ?x2 ) ( forward ?p ?y1 ?y2 ) ) ( <= ( init ( cell ?x 1 white ) ) ( xcoord ?x ) ) ( <= ( init ( cell ?x 2 white ) ) ( xcoord ?x ) ) ( <= ( init ( cell ?x ?y black ) ) ( xcoord ?x ) ( height ?y ) ) ( <= ( init ( cell ?x ?y black ) ) ( xcoord ?x ) ( height ?h ) ( succ ?y ?h ) ) ( init ( control white ) ) ( <= ( cellEmpty ?x ?y ) ( cell ?x ?y ) ( not ( true ( cell ?x ?y white ) ) ) ( not ( true ( cell ?x ?y black ) ) ) ) ( <= ( legal ?p ( move ?x ?y1 ?x ?y2 ) ) ( true ( control ?p ) ) ( true ( cell ?x ?y1 ?p ) ) ( forward ?p ?y1 ?y2 ) ( cellEmpty ?x ?y2 ) ) ( <= ( legal ?p ( move ?x1 ?y1 ?x2 ?y2 ) ) ( true ( control ?p ) ) ( true ( cell ?x1 ?y1 ?p ) ) ( forward ?p ?y1 ?y2 ) ( neighbor ?x1 ?x2 ) ( opponent ?p ?p2 ) ( true ( cell ?x2 ?y2 ?p2 ) ) ) ( <= ( legal ?p noop ) ( role ?p ) ( not ( true ( control ?p ) ) ) ) ( <= ( next ( cell ?x2 ?y2 ?player ) ) ( does ?player ( move ?x1 ?y1 ?x2 ?y2 ) ) ) ( <= ( next ( cell ?x3 ?y3 ?state ) ) ( true ( cell ?x3 ?y3 ?state ) ) ( role ?player ) ( does ?player ( move ?x1 ?y1 ?x2 ?y2 ) ) ( distinctCell ?x1 ?y1 ?x3 ?y3 ) ( distinctCell ?x2 ?y2 ?x3 ?y3 ) ) ( <= ( next ( control ?p ) ) ( true ( control ?p2 ) ) ( opponent ?p ?p2 ) ) ( <= ( wins white ) ( height ?h ) ( true ( cell ?x ?h white ) ) ) ( <= ( wins black ) ( true ( cell ?x 1 black ) ) ) ( <= ( goal ?p 100 ) ( wins ?p ) ) ( <= ( goal ?p 50 ) ( role ?p ) ( not ( wins white ) ) ( not ( wins black ) ) ) ( <= ( goal ?p 0 ) ( opponent ?p ?p2 ) ( wins ?p2 ) ) ( <= ( any_legal_move ?p ) ( legal ?p ?m ) ) ( <= terminal ( wins ?someone ) ) ( <= terminal ( true ( control ?p ) ) ( not ( any_legal_move ?p ) ) ) ( <= ( init ( width ?w ) ) ( width ?w ) ) ( <= ( init ( height ?h ) ) ( height ?h ) ) ( <= ( next ( width ?w ) ) ( width ?w ) ) ( <= ( next ( height ?h ) ) ( height ?h ) ) ( width 3 ) ( height 5 ) ) 30 10)
+LOG 1456751148532 [L0]: [Sent at 1456751148532] ready
+LOG 1456751148535 [L0]: [Received at 1456751148535] ( PLAY kiosk.breakthrough_3x5-1456751148482 NIL )
+LOG 1456751148539 [L0]: [Sent at 1456751148539] noop
+LOG 1456751148908 [L0]: [Received at 1456751148908] ( PLAY kiosk.breakthrough_3x5-1456751148482 (( move 1 2 1 3 ) noop ) )
+LOG 1456751151663 [L0]: [Sent at 1456751151663] ( move 3 4 3 3 )
+LOG 1456751151666 [L0]: [Received at 1456751151666] ( PLAY kiosk.breakthrough_3x5-1456751148482 (noop ( move 3 4 3 3 ) ) )
+LOG 1456751151674 [L0]: [Sent at 1456751151674] noop
+LOG 1456751151813 [L0]: [Received at 1456751151813] ( PLAY kiosk.breakthrough_3x5-1456751148482 (( move 1 3 2 4 ) noop ) )
+LOG 1456751154546 [L0]: [Sent at 1456751154546] ( move 3 5 2 4 )
+LOG 1456751154550 [L0]: [Received at 1456751154550] ( PLAY kiosk.breakthrough_3x5-1456751148482 (noop ( move 3 5 2 4 ) ) )
+LOG 1456751154555 [L0]: [Sent at 1456751154555] noop
+LOG 1456751154567 [L0]: [Received at 1456751154567] ( PLAY kiosk.breakthrough_3x5-1456751148482 (( move 2 2 3 3 ) noop ) )
+LOG 1456751157199 [L0]: [Sent at 1456751157199] ( move 2 4 3 3 )
+LOG 1456751157204 [L0]: [Received at 1456751157204] ( PLAY kiosk.breakthrough_3x5-1456751148482 (noop ( move 2 4 3 3 ) ) )
+LOG 1456751157209 [L0]: [Sent at 1456751157209] noop
+LOG 1456751157212 [L0]: [Received at 1456751157212] ( PLAY kiosk.breakthrough_3x5-1456751148482 (( move 2 1 2 2 ) noop ) )
+LOG 1456751163643 [L0]: [Sent at 1456751163643] ( move 2 5 2 4 )
+LOG 1456751163647 [L0]: [Received at 1456751163647] ( PLAY kiosk.breakthrough_3x5-1456751148482 (noop ( move 2 5 2 4 ) ) )
+LOG 1456751163652 [L0]: [Sent at 1456751163652] noop
+LOG 1456751163656 [L0]: [Received at 1456751163656] ( PLAY kiosk.breakthrough_3x5-1456751148482 (( move 2 2 2 3 ) noop ) )
+LOG 1456751168367 [L0]: [Sent at 1456751168367] ( move 1 4 2 3 )
+LOG 1456751168371 [L0]: [Received at 1456751168371] ( PLAY kiosk.breakthrough_3x5-1456751148482 (noop ( move 1 4 2 3 ) ) )
+LOG 1456751168376 [L0]: [Sent at 1456751168376] noop
+LOG 1456751168380 [L0]: [Received at 1456751168380] ( PLAY kiosk.breakthrough_3x5-1456751148482 (( move 3 2 2 3 ) noop ) )
+LOG 1456751171049 [L0]: [Sent at 1456751171049] ( move 3 3 3 2 )
+LOG 1456751171053 [L0]: [Received at 1456751171053] ( PLAY kiosk.breakthrough_3x5-1456751148482 (noop ( move 3 3 3 2 ) ) )
+LOG 1456751171057 [L0]: [Sent at 1456751171057] noop
+LOG 1456751171061 [L0]: [Received at 1456751171061] ( PLAY kiosk.breakthrough_3x5-1456751148482 (( move 1 1 1 2 ) noop ) )
+LOG 1456751171066 [L0]: [Sent at 1456751171066] ( move 1 5 1 4 )
+LOG 1456751171069 [L0]: [Received at 1456751171069] ( PLAY kiosk.breakthrough_3x5-1456751148482 (noop ( move 1 5 1 4 ) ) )
+LOG 1456751171074 [L0]: [Sent at 1456751171074] noop
+LOG 1456751171077 [L0]: [Received at 1456751171077] ( PLAY kiosk.breakthrough_3x5-1456751148482 (( move 2 3 1 4 ) noop ) )
+LOG 1456751171082 [L0]: [Sent at 1456751171082] ( move 2 4 2 3 )
+LOG 1456751171087 [L0]: [Received at 1456751171087] ( PLAY kiosk.breakthrough_3x5-1456751148482 (noop ( move 2 4 2 3 ) ) )
+LOG 1456751171091 [L0]: [Sent at 1456751171091] noop
+LOG 1456751171097 [L0]: [Received at 1456751171097] ( STOP kiosk.breakthrough_3x5-1456751148482 (( move 1 4 1 5 ) noop ) )
+LOG 1456751171101 [L0]: [Sent at 1456751171101] done
